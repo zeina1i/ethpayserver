@@ -6,5 +6,6 @@ require (
 	github.com/GeertJohan/go.rice v1.0.2
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/ethereum/go-ethereum v1.10.2
+	github.com/golang/mock v1.3.1
 	github.com/julienschmidt/httprouter v1.2.0
 )
