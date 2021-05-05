@@ -34,6 +34,36 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// AddAddress mocks base method.
+func (m *MockStore) AddAddress(address *model.Address) (*model.Address, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAddress", address)
+	ret0, _ := ret[0].(*model.Address)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddAddress indicates an expected call of AddAddress.
+func (mr *MockStoreMockRecorder) AddAddress(address interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAddress", reflect.TypeOf((*MockStore)(nil).AddAddress), address)
+}
+
+// AddHDWallet mocks base method.
+func (m *MockStore) AddHDWallet(hdWallet *model.HDWallet) (model.HDWallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddHDWallet", hdWallet)
+	ret0, _ := ret[0].(model.HDWallet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddHDWallet indicates an expected call of AddHDWallet.
+func (mr *MockStoreMockRecorder) AddHDWallet(hdWallet interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHDWallet", reflect.TypeOf((*MockStore)(nil).AddHDWallet), hdWallet)
+}
+
 // AddTx mocks base method.
 func (m *MockStore) AddTx(tx *model.Tx) (*model.Tx, error) {
 	m.ctrl.T.Helper()
@@ -62,4 +92,19 @@ func (m *MockStore) GetAddress(address string) (*model.Address, error) {
 func (mr *MockStoreMockRecorder) GetAddress(address interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAddress", reflect.TypeOf((*MockStore)(nil).GetAddress), address)
+}
+
+// GetHDWallet mocks base method.
+func (m *MockStore) GetHDWallet(xPub string) (model.HDWallet, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHDWallet", xPub)
+	ret0, _ := ret[0].(model.HDWallet)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHDWallet indicates an expected call of GetHDWallet.
+func (mr *MockStoreMockRecorder) GetHDWallet(xPub interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHDWallet", reflect.TypeOf((*MockStore)(nil).GetHDWallet), xPub)
 }
