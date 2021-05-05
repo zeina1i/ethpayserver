@@ -18,6 +18,14 @@ type HTTPServer struct {
 	store store.Store
 }
 
+func NewHTTPServer(store store.Store) *HTTPServer {
+	return &HTTPServer{
+		Server: httputil.NewServer(httputil.NewRouter(), httputil.NewConfig(8082)),
+
+		store: store,
+	}
+}
+
 func (s *HTTPServer) GenerateAddress() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		req, err := types.NewGenerateAddressRequest(r.Body)
