@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"math"
 	"math/big"
 	"strings"
@@ -21,7 +22,31 @@ var (
 
 type EthClientInterface interface {
 	GetBlockByNumber(ctx context.Context, num *big.Int) (*types.Block, error)
-	TransactionReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error)
+	GetTxReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error)
+}
+
+type EthClient struct {
+	*ethclient.Client
+}
+
+func NewEthClient(client *ethclient.Client) *EthClient {
+	return &EthClient{client}
+}
+
+func (e *EthClient) GetBlockByNumber(ctx context.Context, num *big.Int) (*types.Block, error) {
+	currentBlock, err := e.BlockByNumber(ctx, num)
+
+	return currentBlock, err
+}
+
+func (e *EthClient) GetTxReceipt(ctx context.Context, hash string) (*types.Receipt, error) {
+	txHash := common.HexToHash(hash)
+	rec, err := e.TransactionReceipt(ctx, txHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return rec, nil
 }
 
 func Wei2Float(value *big.Int, decimals uint) float64 {
