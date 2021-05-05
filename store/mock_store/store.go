@@ -50,10 +50,10 @@ func (mr *MockStoreMockRecorder) AddAddress(address interface{}) *gomock.Call {
 }
 
 // AddHDWallet mocks base method.
-func (m *MockStore) AddHDWallet(hdWallet *model.HDWallet) (model.HDWallet, error) {
+func (m *MockStore) AddHDWallet(hdWallet *model.HDWallet) (*model.HDWallet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddHDWallet", hdWallet)
-	ret0, _ := ret[0].(model.HDWallet)
+	ret0, _ := ret[0].(*model.HDWallet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,10 +95,10 @@ func (mr *MockStoreMockRecorder) GetAddress(address interface{}) *gomock.Call {
 }
 
 // GetHDWallet mocks base method.
-func (m *MockStore) GetHDWallet(xPub string) (model.HDWallet, error) {
+func (m *MockStore) GetHDWallet(xPub string) (*model.HDWallet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetHDWallet", xPub)
-	ret0, _ := ret[0].(model.HDWallet)
+	ret0, _ := ret[0].(*model.HDWallet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -107,4 +107,18 @@ func (m *MockStore) GetHDWallet(xPub string) (model.HDWallet, error) {
 func (mr *MockStoreMockRecorder) GetHDWallet(xPub interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHDWallet", reflect.TypeOf((*MockStore)(nil).GetHDWallet), xPub)
+}
+
+// InitializeDB mocks base method.
+func (m *MockStore) InitializeDB() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InitializeDB")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// InitializeDB indicates an expected call of InitializeDB.
+func (mr *MockStoreMockRecorder) InitializeDB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitializeDB", reflect.TypeOf((*MockStore)(nil).InitializeDB))
 }
