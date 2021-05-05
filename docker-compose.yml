@@ -9,7 +9,7 @@ services:
       - MYSQL_USER=ethpayserver
       - MYSQL_PASSWORD=123456
     volumes:
-      - ethpay_mysql:/var/lib/mysql
+      - ethpayserver_mysql:/var/lib/mysql
     ports:
       - 6033:3306
 
