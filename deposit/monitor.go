@@ -43,7 +43,7 @@ func (m *Monitor) handleNewBlockchainTx(transaction *ethTypes.Transaction, block
 	if ok {
 		tries := 0
 	GetReceipt:
-		receipt, err := m.ethClient.TransactionReceipt(context.Background(), transaction.Hash())
+		receipt, err := m.ethClient.GetTxReceipt(context.Background(), transaction.Hash())
 		if err != nil {
 			if tries > 3 {
 				fmt.Println(err, "after 3 tries")
