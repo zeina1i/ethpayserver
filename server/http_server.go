@@ -26,6 +26,21 @@ func NewHTTPServer(store store.Store) *HTTPServer {
 	}
 }
 
+func (s *HTTPServer) InitRoutes() {
+	router := s.Router.Group("/api/v1")
+
+	router.GET("/ping", s.PingEndpoint())
+
+	router.POST("/generate-address", s.GenerateAddress())
+}
+
+func (s *HTTPServer) PingEndpoint() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	}
+}
+
 func (s *HTTPServer) GenerateAddress() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		req, err := types.NewGenerateAddressRequest(r.Body)
@@ -96,8 +111,4 @@ func (s *HTTPServer) GenerateAddress() httprouter.Handle {
 		w.Write(data)
 		return
 	}
-}
-
-func (s *HTTPServer) InitRoutes() {
-	s.Router.POST("/api/v1/generate-address", s.GenerateAddress())
 }
