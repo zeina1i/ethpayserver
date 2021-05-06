@@ -64,6 +64,21 @@ func (mr *MockStoreMockRecorder) AddHDWallet(hdWallet interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHDWallet", reflect.TypeOf((*MockStore)(nil).AddHDWallet), hdWallet)
 }
 
+// AddMerchant mocks base method.
+func (m *MockStore) AddMerchant(merchant *model.Merchant) (*model.Merchant, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddMerchant", merchant)
+	ret0, _ := ret[0].(*model.Merchant)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddMerchant indicates an expected call of AddMerchant.
+func (mr *MockStoreMockRecorder) AddMerchant(merchant interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMerchant", reflect.TypeOf((*MockStore)(nil).AddMerchant), merchant)
+}
+
 // AddTx mocks base method.
 func (m *MockStore) AddTx(tx *model.Tx) (*model.Tx, error) {
 	m.ctrl.T.Helper()
