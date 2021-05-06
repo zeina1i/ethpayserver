@@ -57,3 +57,21 @@ func NewRegisterRequest(r io.Reader) (req RegisterRequest, err error) {
 	err = json.Unmarshal(body, &req)
 	return
 }
+
+type AuthRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func NewAuthRequest(r io.Reader) (req AuthRequest, err error) {
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &req)
+	return
+}
+
+type AuthResponse struct {
+	Token string `json:"token"`
+}
