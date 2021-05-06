@@ -43,3 +43,17 @@ type GenerateAddressResponse struct {
 	CreatedAt    time.Time `json:"created_at"`
 	IsNew        bool      `json:"is_new"`
 }
+
+type RegisterRequest struct {
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+
+func NewRegisterRequest(r io.Reader) (req RegisterRequest, err error) {
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &req)
+	return
+}
