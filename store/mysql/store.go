@@ -92,5 +92,20 @@ CREATE TABLE IF NOT EXISTS txs
 		return err
 	}
 
+	stmt = `
+CREATE TABLE IF NOT EXISTS merchants
+(
+    id       int auto_increment
+        primary key,
+    email    varchar(255) not null,
+    password varchar(255) not null
+)
+    CHARSET = utf8mb4;
+`
+	_, err = s.DB.Exec(stmt)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
