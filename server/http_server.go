@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	rice "github.com/GeertJohan/go.rice"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/julienschmidt/httprouter"
 	"github.com/zeina1i/ethpay/config"
@@ -29,12 +30,27 @@ type HTTPServer struct {
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 func NewHTTPServer(store store.Store, pm passwords.Passwords) *HTTPServer {
-	return &HTTPServer{
+	s := &HTTPServer{
 		Server: httputil.NewServer(httputil.NewRouter(), httputil.NewConfig(8082)),
 
 		store: store,
 		pm:    pm,
 	}
+
+	s.Server.Router.ServeFiles(
+		"/css/*filepath",
+		rice.MustFindBox("../static/css").HTTPBox(),
+	)
+	s.Server.Router.ServeFiles(
+		"/js/*filepath",
+		rice.MustFindBox("../static/js").HTTPBox(),
+	)
+	s.Server.Router.ServeFiles(
+		"/images/*filepath",
+		rice.MustFindBox("../static/images").HTTPBox(),
+	)
+
+	return s
 }
 
 func (s *HTTPServer) InitRoutes() {
