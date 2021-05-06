@@ -124,6 +124,21 @@ func (mr *MockStoreMockRecorder) GetHDWallet(xPub interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHDWallet", reflect.TypeOf((*MockStore)(nil).GetHDWallet), xPub)
 }
 
+// GetMerchant mocks base method.
+func (m *MockStore) GetMerchant(email string) (*model.Merchant, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMerchant", email)
+	ret0, _ := ret[0].(*model.Merchant)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMerchant indicates an expected call of GetMerchant.
+func (mr *MockStoreMockRecorder) GetMerchant(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMerchant", reflect.TypeOf((*MockStore)(nil).GetMerchant), email)
+}
+
 // InitializeDB mocks base method.
 func (m *MockStore) InitializeDB() error {
 	m.ctrl.T.Helper()

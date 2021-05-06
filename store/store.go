@@ -13,5 +13,6 @@ type Store interface {
 	GetHDWallet(xPub string) (*model.HDWallet, error)
 	AddHDWallet(hdWallet *model.HDWallet) (*model.HDWallet, error)
 
+	GetMerchant(email string) (*model.Merchant, error)
 	AddMerchant(merchant *model.Merchant) (*model.Merchant, error)
 }
