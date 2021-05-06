@@ -28,18 +28,19 @@ type HTTPServer struct {
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-func NewHTTPServer(store store.Store) *HTTPServer {
+func NewHTTPServer(store store.Store, pm passwords.Passwords) *HTTPServer {
 	return &HTTPServer{
 		Server: httputil.NewServer(httputil.NewRouter(), httputil.NewConfig(8082)),
 
 		store: store,
+		pm:    pm,
 	}
 }
 
 func (s *HTTPServer) InitRoutes() {
 	s.Router.GET("/api/v1/ping", s.PingEndpoint())
-	s.Router.POST("/api/v1/auth", s.PingEndpoint())
-	s.Router.POST("/api/v1/register", s.AuthEndpoint())
+	s.Router.POST("/api/v1/auth", s.AuthEndpoint())
+	s.Router.POST("/api/v1/register", s.RegisterEndpoint())
 
 	s.Router.POST("/api/v1/generate-address", s.GenerateAddress())
 }
@@ -153,6 +154,15 @@ func (s *HTTPServer) RegisterEndpoint() httprouter.Handle {
 		email := strings.TrimSpace(req.Email)
 		if !isEmailValid(email) {
 			data, _ := json.Marshal(types.NewResponse(true, "Email is not valid", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(data)
+			return
+		}
+
+		_, err = s.store.GetMerchant(req.Email)
+		if err == nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Merchant exists", nil))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(data)
