@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	rice "github.com/GeertJohan/go.rice"
@@ -21,17 +22,26 @@ import (
 
 type HTTPServer struct {
 	*httputil.Server
+	templates *httputil.Templates
 
 	store  store.Store
 	pm     passwords.Passwords
 	config config.Config
 }
 
+type ContextKey int
+
+const (
+	TokenContextKey ContextKey = iota
+	MerchantContextKey
+)
+
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 func NewHTTPServer(store store.Store, pm passwords.Passwords) *HTTPServer {
 	s := &HTTPServer{
-		Server: httputil.NewServer(httputil.NewRouter(), httputil.NewConfig(8082)),
+		Server:    httputil.NewServer(httputil.NewRouter(), httputil.NewConfig(8082)),
+		templates: httputil.NewTemplates("base"),
 
 		store: store,
 		pm:    pm,
@@ -91,6 +101,53 @@ func (s *HTTPServer) jwtKeyFunc(token *jwt.Token) (interface{}, error) {
 		return nil, fmt.Errorf("There was an error")
 	}
 	return []byte(s.config.APISigningKey), nil
+}
+
+func (s *HTTPServer) isAuthorized(endpoint httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		if r.Header.Get("Token") == "" {
+			data, _ := json.Marshal(types.NewResponse(true, "No Token has provided", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write(data)
+			return
+		}
+
+		token, err := jwt.Parse(r.Header.Get("Token"), s.jwtKeyFunc)
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Token is not valid", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write(data)
+			return
+		}
+
+		if token.Valid {
+			claims := token.Claims.(jwt.MapClaims)
+
+			email := claims["email"].(string)
+
+			merchant, err := s.store.GetMerchant(email)
+			if err != nil {
+				data, _ := json.Marshal(types.NewResponse(true, "Merchant not found", nil))
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write(data)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), TokenContextKey, token)
+			ctx = context.WithValue(ctx, MerchantContextKey, merchant)
+
+			endpoint(w, r.WithContext(ctx), p)
+		} else {
+			data, _ := json.Marshal(types.NewResponse(true, "Token is not valid", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write(data)
+			return
+		}
+	}
 }
 
 func (s *HTTPServer) PingEndpoint() httprouter.Handle {
