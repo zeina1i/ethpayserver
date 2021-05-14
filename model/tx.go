@@ -4,6 +4,7 @@ import "time"
 
 type Tx struct {
 	ID          uint32    `json:"-" db:"id"`
+	MerchantID  uint32    `json:"merchant_id" db:"merchant_id"`
 	TxTime      time.Time `json:"tx_time" db:"tx_time"`
 	ReflectTime time.Time `json:"reflect_time" db:"reflect_time"`
 	FromAddress string    `json:"from" db:"from_address"`

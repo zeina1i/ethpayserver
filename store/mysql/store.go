@@ -70,20 +70,12 @@ CHARSET = utf8mb4;
 	}
 
 	stmt = `
-CREATE TABLE IF NOT EXISTS txs
+CREATE TABLE IF NOT EXISTS merchants
 (
-    id           int auto_increment
+    id       int auto_increment
         primary key,
-    tx_time      datetime                         null,
-    reflect_time datetime                         null,
-    from_address char(42)                         null,
-    to_address   char(42)                         not null,
-    asset        varchar(10)                      not null,
-    amount       double(15, 8) default 0.00000000 not null,
-    block_no     bigint        default 0          not null,
-    tx_hash      varchar(255)                     not null,
-    is_reflected tinyint(1)    default 0          not null,
-    tx_status    varchar(255)                     not null
+    email    varchar(255) not null,
+    password varchar(255) not null
 )
     CHARSET = utf8mb4;
 `
@@ -93,14 +85,25 @@ CREATE TABLE IF NOT EXISTS txs
 	}
 
 	stmt = `
-CREATE TABLE IF NOT EXISTS merchants
+CREATE TABLE IF NOT EXISTS txs
 (
-    id       int auto_increment
+    id           int auto_increment
         primary key,
-    email    varchar(255) not null,
-    password varchar(255) not null
+    merchant_id  int                              null,
+    reflect_time datetime                         null,
+    from_address char(42)                         null,
+    to_address   char(42)                         not null,
+    asset        varchar(10)                      not null,
+    amount       double(15, 8) default 0.00000000 not null,
+    block_no     bigint        default 0          not null,
+    tx_hash      varchar(255)                     not null,
+    is_reflected tinyint(1)    default 0          not null,
+    tx_time      datetime                         null,
+    constraint txs_merchants_id_fk
+        foreign key (merchant_id) references merchants (id)
 )
     CHARSET = utf8mb4;
+
 `
 	_, err = s.DB.Exec(stmt)
 	if err != nil {

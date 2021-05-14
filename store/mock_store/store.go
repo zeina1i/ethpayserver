@@ -139,6 +139,21 @@ func (mr *MockStoreMockRecorder) GetMerchant(email interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMerchant", reflect.TypeOf((*MockStore)(nil).GetMerchant), email)
 }
 
+// GetTxs mocks base method.
+func (m *MockStore) GetTxs(merchantId uint32, offset, limit int) ([]*model.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTxs", merchantId, offset, limit)
+	ret0, _ := ret[0].([]*model.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTxs indicates an expected call of GetTxs.
+func (mr *MockStoreMockRecorder) GetTxs(merchantId, offset, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTxs", reflect.TypeOf((*MockStore)(nil).GetTxs), merchantId, offset, limit)
+}
+
 // InitializeDB mocks base method.
 func (m *MockStore) InitializeDB() error {
 	m.ctrl.T.Helper()

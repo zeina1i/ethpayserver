@@ -9,6 +9,7 @@ type Store interface {
 	AddAddress(address *model.Address) (*model.Address, error)
 
 	AddTx(tx *model.Tx) (*model.Tx, error)
+	GetTxs(merchantId uint32, offset int, limit int) ([]*model.Tx, error)
 
 	GetHDWallet(xPub string) (*model.HDWallet, error)
 	AddHDWallet(hdWallet *model.HDWallet) (*model.HDWallet, error)

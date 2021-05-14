@@ -7,6 +7,9 @@ INSERT INTO txs
 (tx_time, reflect_time, from_address, to_address, asset, amount, block_no, tx_hash, is_reflected, tx_status)
 VALUES (:tx_time, :reflect_time, :from_address, :to_address, :asset, :amount, :block_no, :tx_hash, :is_reflected, :tx_status)`
 
+const GetTxsStmt = `
+SELECT * FROM txs WHERE merchant_id=:merchant_id LIMIT :limit OFFSET :offset`
+
 func (s *Store) AddTx(tx *model.Tx) (*model.Tx, error) {
 	m := map[string]interface{}{
 		"tx_time":      tx.TxTime.Format("2006-01-02 15:04:05"),
@@ -33,4 +36,29 @@ func (s *Store) AddTx(tx *model.Tx) (*model.Tx, error) {
 	tx.ID = uint32(id)
 
 	return tx, nil
+}
+
+func (s *Store) GetTxs(merchantId uint32, offset int, limit int) ([]*model.Tx, error) {
+	m := map[string]interface{}{
+		"merchant_id": merchantId,
+		"offset":      offset,
+		"limit":       limit,
+	}
+
+	var txs []*model.Tx
+	rows, err := s.NamedQuery(GetTxsStmt, m)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var tx model.Tx
+		err = rows.StructScan(&tx)
+		if err != nil {
+			return nil, err
+		}
+		txs = append(txs, &tx)
+	}
+
+	return txs, err
 }
