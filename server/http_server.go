@@ -69,6 +69,7 @@ func (s *HTTPServer) InitRoutes() {
 	s.Router.POST("/api/v1/register", s.RegisterEndpoint())
 
 	s.Router.POST("/api/v1/generate-address", s.GenerateAddress())
+	s.Router.GET("/api/v1/transactions", s.isAuthorized(s.TransactionsEndpoint()))
 }
 
 func (s *HTTPServer) CreateToken(merchant *model.Merchant, r *http.Request) (*types.Token, error) {
@@ -259,6 +260,7 @@ func (s *HTTPServer) RegisterEndpoint() httprouter.Handle {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(data)
+			return
 		}
 
 		data, _ := json.Marshal(types.NewResponse(false, "Registration successful", nil))
@@ -340,9 +342,58 @@ func (s *HTTPServer) GenerateAddress() httprouter.Handle {
 	}
 }
 
-func isEmailValid(e string) bool {
-	if len(e) < 3 && len(e) > 254 {
-		return false
+func (s *HTTPServer) TransactionsEndpoint() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		paginationItems := s.config.PaginationItems
+		merchant := r.Context().Value(MerchantContextKey).(*model.Merchant)
+		page := safeParseInt(r.FormValue("p"), 1)
+
+		txs, err := s.store.GetTxs(merchant.ID, (page-1)*paginationItems, paginationItems)
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Getting transaction list error", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(data)
+			return
+		}
+
+		count, err := s.store.CountTxs(merchant.ID)
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Counting transactions error", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(data)
+			return
+		}
+
+		var responseTxs []*types.ListTx
+		for _, tx := range txs {
+			responseTxs = append(responseTxs, &types.ListTx{
+				ID:          tx.ID,
+				TxTime:      tx.TxTime,
+				ReflectTime: tx.ReflectTime,
+				FromAddress: tx.FromAddress,
+				ToAddress:   tx.ToAddress,
+				Asset:       tx.Asset,
+				Amount:      tx.Amount,
+				BlockNo:     tx.BlockNo,
+				TxHash:      tx.TxHash,
+				IsReflected: tx.IsReflected,
+			})
+		}
+
+		pagedResponse := types.TxsPagedResponse{
+			Transactions: responseTxs,
+			Pager: types.PagerResponse{
+				Current:  page,
+				MaxPages: count/paginationItems + 1,
+				Total:    count,
+			},
+		}
+
+		data, _ := json.Marshal(pagedResponse)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(data)
+		return
 	}
-	return emailRegex.MatchString(e)
 }

@@ -1,5 +1,6 @@
 package config
 
 type Config struct {
-	APISigningKey string
+	PaginationItems int
+	APISigningKey   string
 }

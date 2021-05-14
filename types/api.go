@@ -75,3 +75,27 @@ func NewAuthRequest(r io.Reader) (req AuthRequest, err error) {
 type AuthResponse struct {
 	Token string `json:"token"`
 }
+
+type ListTx struct {
+	ID          uint32    `json:"id"`
+	TxTime      time.Time `json:"tx_time"`
+	ReflectTime time.Time `json:"reflect_time"`
+	FromAddress string    `json:"from"`
+	ToAddress   string    `json:"to_address"`
+	Asset       string    `json:"asset"`
+	Amount      float64   `json:"amount"`
+	BlockNo     int64     `json:"block_no"`
+	TxHash      string    `json:"tx_hash"`
+	IsReflected uint      `json:"is_reflected"`
+}
+
+type PagerResponse struct {
+	Current  int `json:"current_page"`
+	MaxPages int `json:"max_pages"`
+	Total    int `json:"total"`
+}
+
+type TxsPagedResponse struct {
+	Transactions []*ListTx `json:"transactions"`
+	Pager        PagerResponse
+}
