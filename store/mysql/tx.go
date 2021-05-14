@@ -1,6 +1,8 @@
 package mysql
 
-import "github.com/zeina1i/ethpay/model"
+import (
+	"github.com/zeina1i/ethpay/model"
+)
 
 const AddTxStmt = `
 INSERT INTO txs
@@ -9,6 +11,9 @@ VALUES (:tx_time, :reflect_time, :from_address, :to_address, :asset, :amount, :b
 
 const GetTxsStmt = `
 SELECT * FROM txs WHERE merchant_id=:merchant_id LIMIT :limit OFFSET :offset`
+
+const CountTxsStmt = `
+SELECT count(*) FROM txs WHERE merchant_id=:merchant_id`
 
 func (s *Store) AddTx(tx *model.Tx) (*model.Tx, error) {
 	m := map[string]interface{}{
@@ -61,4 +66,24 @@ func (s *Store) GetTxs(merchantId uint32, offset int, limit int) ([]*model.Tx, e
 	}
 
 	return txs, err
+}
+
+func (s *Store) CountTxs(merchantId uint32) (int, error) {
+	m := map[string]interface{}{
+		"merchant_id": merchantId,
+	}
+
+	rows, err := s.NamedQuery(CountTxsStmt, m)
+	if err != nil {
+		return -1, err
+	}
+
+	var count int
+	rows.Next()
+	err = rows.Scan(&count)
+	if err != nil {
+		return -1, err
+	}
+
+	return count, err
 }
