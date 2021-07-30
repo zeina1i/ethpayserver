@@ -70,14 +70,16 @@ CHARSET = utf8mb4;
 	}
 
 	stmt = `
-CREATE TABLE IF NOT EXISTS merchants
+CREATE TABLE IF NOT EXISTS hd_wallets
 (
-    id       int auto_increment
+    id          int auto_increment
         primary key,
-    email    varchar(255) not null,
-    password varchar(255) not null
+    x_pub       varchar(255) not null,
+    merchant_id int          null,
+    constraint hd_wallets_merchants_id_fk
+        foreign key (merchant_id) references merchants (id)
 )
-    CHARSET = utf8mb4;
+    charset = utf8mb4;
 `
 	_, err = s.DB.Exec(stmt)
 	if err != nil {
