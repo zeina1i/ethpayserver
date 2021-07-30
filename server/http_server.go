@@ -68,8 +68,9 @@ func (s *HTTPServer) InitRoutes() {
 	s.Router.POST("/api/v1/auth", s.AuthEndpoint())
 	s.Router.POST("/api/v1/register", s.RegisterEndpoint())
 
-	s.Router.POST("/api/v1/generate-address", s.GenerateAddress())
-	s.Router.GET("/api/v1/transactions", s.isAuthorized(s.TransactionsEndpoint()))
+	s.Router.POST("/api/v1/address", s.GenerateAddress())
+	s.Router.GET("/api/v1/transaction", s.isAuthorized(s.TransactionsEndpoint()))
+	s.Router.POST("/api/v1/hd-wallet", s.isAuthorized(s.GenerateHDWallet()))
 }
 
 func (s *HTTPServer) CreateToken(merchant *model.Merchant, r *http.Request) (*types.Token, error) {
@@ -152,7 +153,7 @@ func (s *HTTPServer) isAuthorized(endpoint httprouter.Handle) httprouter.Handle 
 }
 
 func (s *HTTPServer) PingEndpoint() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{}`))
 		return
@@ -339,6 +340,37 @@ func (s *HTTPServer) GenerateAddress() httprouter.Handle {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
 		return
+	}
+}
+
+func (s *HTTPServer) GenerateHDWallet() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		merchant := r.Context().Value(MerchantContextKey).(*model.Merchant)
+		req, err := types.NewGenerateAddressRequest(r.Body)
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Bad Request", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(data)
+			return
+		}
+
+		_, err = s.store.AddHDWallet(&model.HDWallet{
+			XPub:       req.XPub,
+			MerchantID: merchant.ID,
+		})
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Error in storing hdWallet", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(data)
+			return
+		}
+
+		data, _ := json.Marshal(types.NewResponse(false, "Hd wallet stored successfully", nil))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(data)
 	}
 }
 

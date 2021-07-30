@@ -4,8 +4,8 @@ import "github.com/zeina1i/ethpay/model"
 
 const (
 	AddHDWalletStmt = `
-INSERT INTO hd_wallets(x_pub)
-VALUES (:x_pub)
+INSERT INTO hd_wallets(x_pub, merchant_id)
+VALUES (:x_pub, :merchant_id)
 `
 	GetHDWalletStmt = `
 SELECT * FROM hd_wallets AS w
@@ -15,7 +15,8 @@ WHERE w.x_pub =?
 
 func (s *Store) AddHDWallet(wallet *model.HDWallet) (*model.HDWallet, error) {
 	m := map[string]interface{}{
-		"x_pub": wallet.XPub,
+		"x_pub":       wallet.XPub,
+		"merchant_id": wallet.MerchantID,
 	}
 
 	res, err := s.NamedExec(AddHDWalletStmt, m)

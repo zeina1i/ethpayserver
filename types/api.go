@@ -99,3 +99,16 @@ type TxsPagedResponse struct {
 	Transactions []*ListTx `json:"transactions"`
 	Pager        PagerResponse
 }
+
+type GenerateHDWalletRequest struct {
+	XPub string `json:"x_pub"`
+}
+
+func NewGenerateHDWalletRequest(r io.Reader) (req GenerateHDWalletRequest, err error) {
+	body, err := ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &req)
+	return
+}
