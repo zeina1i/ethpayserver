@@ -14,6 +14,7 @@ import (
 	"github.com/zeina1i/ethpay/passwords"
 	"github.com/zeina1i/ethpay/store"
 	"github.com/zeina1i/ethpay/types"
+	"html/template"
 	"net/http"
 	"regexp"
 	"strings"
@@ -60,6 +61,17 @@ func NewHTTPServer(store store.Store, pm passwords.Passwords) *HTTPServer {
 		rice.MustFindBox("../static/images").HTTPBox(),
 	)
 
+	box := rice.MustFindBox("../templates")
+
+	loginTemplate := template.New("login")
+	template.Must(loginTemplate.Parse(box.MustString("login.html")))
+	template.Must(loginTemplate.Parse(box.MustString("login_base.html")))
+	s.templates.Add("login", loginTemplate)
+
+	dashboardTemplate := template.New("admin")
+	template.Must(dashboardTemplate.Parse(box.MustString("base.html")))
+	s.templates.Add("admin", dashboardTemplate)
+
 	return s
 }
 
@@ -71,6 +83,10 @@ func (s *HTTPServer) InitRoutes() {
 	s.Router.POST("/api/v1/address", s.GenerateAddress())
 	s.Router.GET("/api/v1/transaction", s.isAuthorized(s.TransactionsEndpoint()))
 	s.Router.POST("/api/v1/hd-wallet", s.isAuthorized(s.GenerateHDWallet()))
+	s.Router.GET("/api/v1/hd-wallet", s.isAuthorized(s.GetHDWalletsEndpoint()))
+
+	s.Router.GET("/admin/login", s.Login())
+	s.Router.GET("/admin/", s.Admin())
 }
 
 func (s *HTTPServer) CreateToken(merchant *model.Merchant, r *http.Request) (*types.Token, error) {
@@ -374,6 +390,34 @@ func (s *HTTPServer) GenerateHDWallet() httprouter.Handle {
 	}
 }
 
+func (s *HTTPServer) GetHDWalletsEndpoint() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		merchant := r.Context().Value(MerchantContextKey).(*model.Merchant)
+
+		HDWallets, err := s.store.GetHDWalletsByMerchantID(merchant.ID)
+		if err != nil {
+			data, _ := json.Marshal(types.NewResponse(true, "Getting HD-wallet list error", nil))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(data)
+			return
+		}
+
+		var responseHDWallets []*types.ListHDWallet
+		for _, HDWallet := range HDWallets {
+			responseHDWallets = append(responseHDWallets, &types.ListHDWallet{
+				ID:   HDWallet.ID,
+				XPub: HDWallet.XPub,
+			})
+		}
+
+		data, _ := json.Marshal(responseHDWallets)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(data)
+		return
+	}
+}
+
 func (s *HTTPServer) TransactionsEndpoint() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		paginationItems := s.config.PaginationItems
@@ -427,5 +471,29 @@ func (s *HTTPServer) TransactionsEndpoint() httprouter.Handle {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
 		return
+	}
+}
+
+func (s *HTTPServer) render(name string, w http.ResponseWriter, ctx interface{}) {
+	buf, err := s.templates.Exec(name, ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *HTTPServer) Login() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		s.render("login", w, nil)
+	}
+}
+
+func (s *HTTPServer) Admin() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		s.render("admin", w, nil)
 	}
 }

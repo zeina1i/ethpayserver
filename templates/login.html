@@ -1,0 +1,33 @@
+{{ define "content" }}
+<main class="main container login" id="app">
+    <article class="grid">
+        <div>
+            <hgroup>
+                <h1>Log in</h1>
+
+                <h2>Log in to EThPay Server</h2>
+            </hgroup>
+            <form method="post">
+                <input type="text" name="email" placeholder="Email" aria-label="Email" autocomplete="nickname" required
+                       v-model="email">
+                <input type="password" name="password" placeholder="Password" aria-label="Password"
+                       autocomplete="current-password" required v-model="password">
+                <button type="submit" class="contrast" onclick="event.preventDefault()"
+                        v-on:click="auth({'email':  email , 'password': password})">Login
+                </button>
+            </form>
+        </div>
+        <div>
+            <hgroup>
+                <h2>
+                    How to login to your account ?
+                </h2>
+            </hgroup>
+            <p>
+                Login to your EthPay Server account by filling in the Username and Password you used when you created
+                your account.
+            </p>
+        </div>
+    </article>
+</main>
+{{ end }}

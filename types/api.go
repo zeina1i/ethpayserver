@@ -112,3 +112,8 @@ func NewGenerateHDWalletRequest(r io.Reader) (req GenerateHDWalletRequest, err e
 	err = json.Unmarshal(body, &req)
 	return
 }
+
+type ListHDWallet struct {
+	ID   uint32 `json:"id"`
+	XPub string `json:"x_pub"`
+}

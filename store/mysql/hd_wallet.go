@@ -11,6 +11,10 @@ VALUES (:x_pub, :merchant_id)
 SELECT * FROM hd_wallets AS w
 WHERE w.x_pub =?
 `
+	GetHDWalletsByMerchantIDStmt = `
+SELECT * FROM hd_wallets AS w
+WHERE w.merchant_id = :merchant_id
+`
 )
 
 func (s *Store) AddHDWallet(wallet *model.HDWallet) (*model.HDWallet, error) {
@@ -43,4 +47,27 @@ func (s *Store) GetHDWallet(xPub string) (*model.HDWallet, error) {
 	}
 
 	return &wallet, nil
+}
+
+func (s *Store) GetHDWalletsByMerchantID(merchantID uint32) ([]*model.HDWallet, error) {
+	m := map[string]interface{}{
+		"merchant_id": merchantID,
+	}
+
+	var hdWallets []*model.HDWallet
+	rows, err := s.NamedQuery(GetHDWalletsByMerchantIDStmt, m)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var hdWallet model.HDWallet
+		err = rows.StructScan(&hdWallet)
+		if err != nil {
+			return nil, err
+		}
+		hdWallets = append(hdWallets, &hdWallet)
+	}
+
+	return hdWallets, err
 }

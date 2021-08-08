@@ -13,6 +13,7 @@ type Store interface {
 	CountTxs(merchantId uint32) (int, error)
 
 	GetHDWallet(xPub string) (*model.HDWallet, error)
+	GetHDWalletsByMerchantID(merchantID uint32) ([]*model.HDWallet, error)
 	AddHDWallet(hdWallet *model.HDWallet) (*model.HDWallet, error)
 
 	GetMerchant(email string) (*model.Merchant, error)

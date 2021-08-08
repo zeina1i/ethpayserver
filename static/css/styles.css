@@ -379,12 +379,14 @@ body > nav svg {
 }
 
 body > nav ul:first-of-type li:first-of-type a {
-    width: 3.5rem;
     height: 3.5rem;
+    line-height: 3.5rem;
+    width: 3rem;
+    text-align: center;
     margin-left: calc(var(--spacing-gutter) * -1);
-    padding: 0;
     background: var(--h1);
-    color: var(--background)
+    color: var(--background);
+    padding: 0;
 }
 
 body > nav ul:first-of-type li:first-of-type a svg {
@@ -469,7 +471,13 @@ body > main.login {
     justify-content: center;
     min-height: calc(100vh - 7rem);
     padding: 1rem 0;
-}/*
+}
+article.first-item {
+    margin-top: 0 !important;
+    background: #0d1419;
+}
+
+/*
 article {
     padding: 0;
     overflow: hidden;

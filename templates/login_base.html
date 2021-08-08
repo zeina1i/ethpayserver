@@ -1,0 +1,36 @@
+{{ define "base" }}
+<html data-theme="light">
+<head>
+    <link href="/css/pico.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<nav class="container-fluid" xmlns:v-on="http://www.w3.org/1999/xhtml">
+    <ul>
+        <li><a href="./" class="contrast" onclick="event.preventDefault()"><strong>EPS</strong></a></li>
+        <li>EThPay Server</li>
+    </ul>
+</nav>
+{{template "content" .}}
+</body>
+<script src="/js/vue.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script>
+    document.querySelectorAll('.test').forEach(el => {
+        el.addEventListener('click', function (event) {
+            hello()
+                .then(function (a) {
+                    console.log(a)
+                })
+                .catch(function (e) {
+                    console.log(e)
+                })
+        })
+    })
+    function hello() {
+        return fetch('http://localhost:8082/')
+    }
+</script>
+</html>
+{{ end }}
