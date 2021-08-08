@@ -93,7 +93,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-    router
+    routes
 })
 
 new Vue({
